@@ -18,7 +18,7 @@ In the last few months I have been working on a primarily Javascript app. It's a
 
 To the point: Imagine you want to write a function that executes something asyncronously (fetch from a DB or whatever) and needs to return the result. I will emulate the asyncronous nature of the function by using `setTimeout`. Is this what you would do?
 
-``` javascript
+{% codeblock lang:javascript %}
 var myFunc = function (value, options) {
     options = options || {};
     var success = options.success;
@@ -32,11 +32,11 @@ var myFunc = function (value, options) {
 };
 
 myFunc(100, {success: function (res) { console.log(res); }});
-```
+{% endcodeblock %}
 
 In version 1.5 jQuery introduced the notion of *deferred* and *promise*. Compare the above to the following code using those:
 
-``` javascript
+{% codeblock lang:javascript %}
 var myFunc = function (value) {
     var d = $.Deferred();
 
@@ -48,19 +48,19 @@ var myFunc = function (value) {
 
 var promise = myFunc(100);
 promise.done(function (res) { console.log(res); });
-```
+{% endcodeblock %}
 
 Take some time to figure it out and think for a start if you find it cleaner.... It is, isn't it? First we create a `$.Deferred`. At the end we return the deferred's `promise`. Inside the asyncronous part we *resolve* the deferred, which in turn triggers the promise's `done`. Apart from being neater there are a number of additional advantages. To name a couple that I find interesting, a promises's `done` will trigger even after the deferred has been resolved. That is, if later you did
 
-``` Javascript
+{% codeblock lang:javascript %}
 promise.done(do_something_else);
-```
+{% endcodeblock %}
 
 this would trigger immediately since the promise has been fulfilled already. Additionally, you can easily chain deferreds and promises, or say if you wanted something to happen after a few promises have been fulfilled you could do 
 
-``` javascript
+{% codeblock lang:javascript %}
 $.when(promise1, promise2).then(...);
-```
+{% endcodeblock %}
 
 Of course deferreds and promises support handling failures, provide a way to inspect the state of a promise and a few other goodies. Read more about them [here](http://api.jquery.com/category/deferred-object/) and [here](http://api.jquery.com/promise/). You can already start using them on all jQuery objects/functions and also be aware that the success/failure callbacks will eventually be obsolete. The point of this exercise was to show you that there is a lot you probably don't know about Javascript. It's there for you to explore.
 
