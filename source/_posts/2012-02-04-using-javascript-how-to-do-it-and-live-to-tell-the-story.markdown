@@ -74,7 +74,14 @@ For this to happen it helps a lot if you have frameworks. The ones I chose, but 
 
 Others might choose different tools like [Ember.js](http://emberjs.com/). I like Underscore and Backbone because they are small, they are readable (check out the annotated source, when was the last time you could go through a framework and actually *understand* what it is doing on first read?) but mostly and this is super important THEY DON'T GET IN YOUR WAY. When you want to do things differently they allow you without fighting to do so. Coming from Plone, I can't feel but relieved.
 
-3. Testing. We are pretty good at that in Plone. There is an enormous suite of tests to cover the framework and all respectable add-on products are on it too. But ONLY on the server side right? Then, we sort of act surprised when it fails ;)
+3. Testing. Plone has been pretty good at that since the days of 2.5. There is an enormous suite of tests to cover the framework and all respectable add-on products are accompanied but a test suite. Only problem is, these tests rarely cover the client side of things. Javascript becoming an essential part of products and frameworks alike, this should change.
 
-I looked at QUnit, JUnit and selenium (in all its variants and collection of python drivers). I found them difficult and disapointing. Then I came across Jasmine and felt in love. Again, simplicity, readability, speed at its best. Powerful mocking. No requirements. I don't need to say more, just grab it and use it.
+I looked at QUnit, JUnit and selenium (in all its variants and collection of python drivers). I found them cumbersome and restrictive. Then I came across [Jasmine](http://pivotal.github.com/jasmine/) and felt in love. Jasmine is a BBD 
+(behavior-driven development) framework with these advantages:
+* Readable, simple and fast.
+* Powerful mocking and spies built-in.
+* No requirements on other frameworks, just works with whatever you use.
+* It can run on the browser, or headless and there is abundance of drivers for it.
+
+
 
