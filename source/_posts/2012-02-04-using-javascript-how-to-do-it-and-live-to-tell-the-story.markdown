@@ -14,7 +14,9 @@ It is no secret that the relationship between the Plone community (and I imagine
 
 In the last few months I have been working on a primarily Javascript app. It's a non-Plone related project which I promise to expand upon in later posts but the lessons learned and experience gained apply to Javascript written for Plone as well:
 
-* Let's understand and explore what is there already. I will use as an example the most common pattern of calling an asyncronous function with jQuery and doing something on "success". This is such a common operation, but did you know you can improve how you do it by using jQuery's Deferreds and Promises?
+JS is not that bad...
+---------------------
+Let's understand and explore what is there already. I will use as an example the most common pattern of calling an asyncronous function with jQuery and doing something on "success". This is such a common operation, but did you know you can improve how you do it by using jQuery's Deferreds and Promises?
 
 To the point: Imagine you want to write a function that executes something asyncronously (fetch from a DB or whatever) and needs to return the result. I will emulate the asyncronous nature of the function by using `setTimeout`. Is this what you would do?
 
@@ -64,23 +66,29 @@ $.when(promise1, promise2).then(...);
 
 Of course deferreds and promises support handling failures, provide a way to inspect the state of a promise and a few other goodies. Read more about them [here](http://api.jquery.com/category/deferred-object/) and [here](http://api.jquery.com/promise/). You can already start using them on all jQuery objects/functions and also be aware that the success/failure callbacks will eventually be obsolete. The point of this exercise was to show you that there is a lot you probably don't know about Javascript. It's there for you to explore.
 
-* Let's stop writing spaghetti code taken from random examples. It does not help us and others understand what we do. It is not maintainable. It is error-prone. My own stuff [jarn.xmpp.core](http://github.com/ggozad/jarn.xmpp.core) although better than average is a good example of what to avoid. The UI and logic *are* (not loosely enough) coupled together. While the use of namespaces gives an impression of structure, the different modules are not decoupled and they really require the total to be present to function. When I get the time (or clients) to rewrite it I will.
+Choose your frameworks
+----------------------
+Let's stop writing spaghetti code taken from random examples. It does not help us and others understand what we do. It is not maintainable. It is error-prone. My own stuff [jarn.xmpp.core](http://github.com/ggozad/jarn.xmpp.core) although better than average is a good example of what to avoid. The UI and logic *are* (not loosely enough) coupled together. While the use of namespaces gives an impression of structure, the different modules are not decoupled and they really require the total to be present to function. When I get the time (or clients) to rewrite it I will.
 
-    For this to happen it helps a lot if you have frameworks. The ones I chose, but this depends a lot on what one values, are Underscore and Backbone. I find them both indispensable tools in my daily routine.
+For this to happen it helps a lot if you have frameworks. The ones I chose, but this depends a lot on what one values, are Underscore and Backbone. I find them both indispensable tools in my daily routine.
 
-    * [Underscore](http://documentcloud.github.com/underscore/) gives you all these utilities that you have come to depend upon. Map, reduce, filter, and the likes are the core of the framework. Then there are some additional things I like, especially the function binding and the minimal and powerful template engine.
+* [Underscore](http://documentcloud.github.com/underscore/) gives you all these utilities that you have come to depend upon. Map, reduce, filter, and the likes are the core of the framework. Then there are some additional things I like, especially the function binding and the minimal and powerful template engine.
 
-    * [Backbone](http://documentcloud.github.com/backbone/) is my choice for structuring my code and doing MVC. Its primary use is to support you writing models, collections and views for these. Additionally it gives you a super extensible way with sane defaults to push/pull data to the server that does not get in your way.
+* [Backbone](http://documentcloud.github.com/backbone/) is my choice for structuring my code and doing MVC. Its primary use is to support you writing models, collections and views for these. Additionally it gives you a super extensible way with sane defaults to push/pull data to the server that does not get in your way.
 
 Others might choose different tools like [Ember.js](http://emberjs.com/). I like Underscore and Backbone because they are small, they are readable (check out the annotated source and try to remember when was the last time you read through a framework and actually *understood* what it was doing on your first read?) but mostly and this is super important they don't get in your way. When you want to do things differently they allow you to do so without a fight. Coming from Plone, I can't feel but relieved.
 
-* Testing. Plone has been pretty good at that since the days of 2.5. There is an enormous suite of tests to cover the framework and all respectable add-on products are accompanied by a test suite. Only problem is, these tests rarely cover the client side of things. Javascript becoming an essential part of products and frameworks alike, this should change.
+Testing
+-------
+Plone has been pretty good at that since the days of 2.5. There is an enormous suite of tests to cover the framework and all respectable add-on products are accompanied by a test suite. Only problem is, these tests rarely cover the client side of things. Javascript becoming an essential part of products and frameworks alike, this should change.
 
-    I looked at QUnit, JUnit and selenium (in all its variants and collection of Python drivers). I found them cumbersome and restrictive. Then I came across [Jasmine](http://pivotal.github.com/jasmine/) and fell in love. Jasmine is a BBD (Behavior-Driven Development) framework with these advantages:
+I looked at QUnit, JUnit and selenium (in all its variants and collection of Python drivers). I found them cumbersome and restrictive. Then I came across [Jasmine](http://pivotal.github.com/jasmine/) and fell in love. Jasmine is a BBD (Behavior-Driven Development) framework with these advantages:
 
-    * Readable, simple and fast.
-    * Powerful mocking and spies built-in (took me 15 lines to create a mock for an XMPP connection;))
-    * No requirements on other frameworks, just works with whatever you use.
-    * It can run either on the browser or headless and there is abundance of drivers for it.
+* Readable, simple and fast.
+* Powerful mocking and spies built-in (took me 15 lines to create a mock for an XMPP connection;))
+* No requirements on other frameworks, just works with whatever you use.
+* It can run either on the browser or headless and there is abundance of drivers for it.
 
 I find that the combination of the above is hard to find together. Use it, it's good!
+
+There you go. Hopefully you will get the same pleasure I got exploring all that and will find it as rewarding...
