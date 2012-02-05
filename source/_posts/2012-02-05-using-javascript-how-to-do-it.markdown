@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Using Javascript: how to do it, live to tell the story and actually enjoy it"
-date: 2012-02-04 22:44
+date: 2012-02-05 22:40
 comments: true
 categories: [Javascript, Plone]
 ---
