@@ -6,25 +6,59 @@ comments: true
 categories:
 ---
 
-[Backbone.js](http://documentcloud.github.com/backbone/) is a very popular framework for building web applications. Building on top of the excellent [Underscore.js](http://documentcloud.github.com/underscore/), an essential tool for js development, it provides the basic app-building blocks, *Models*, *Collections* and *Views* for them as well as a simple *Router* on top.
+[Backbone.js](http://documentcloud.github.com/backbone/) is a popular framework for building web applications with javascript. Building on top of the excellent [Underscore.js](http://documentcloud.github.com/underscore), it provides the basic app-building blocks, *Models*, *Collections* and *Views* as well as a simple *Router*.
 
-What I enjoy the most about Backbone, is its simplicity. It provides me with what I need to be productive, no more no less. Its assumptions are limited to the essential ones leaving me the freedom to be creative and to not have to fight with it when I want to differ in my approach.
+What I enjoy the most about Backbone, is its simplicity. It gives me what I need to be productive, no more no less. Its assumptions are limited to the essential ones leaving me the freedom to be creative and to not have to fight with it when I want to differ in my approach.
 
-In order to connect models and collections with the server-side of things, Backbone's default approach is making RESTful Ajax requests using a CRUD approach. All the operations that read from or persist data to the server are delegated to a *sync()* function that translates *create*, *read*, *update*, *delete* to *PUT*, *GET*, *POST*, *DELETE*. It then goes on to make these calls through jQuery, and the job is done.
+In order to connect models and collections with the server-side of things, Backbone's default approach is CRUD through RESTful Ajax requests. All the operations that read from or persist data to the server are delegated to a *sync()* function that translates *create*, *read*, *update*, *delete* to *PUT*, *GET*, *POST*, *DELETE* through jQuery.
 
-The beauty of it, is that one only needs to override `sync` to provide an alternative storage. A popular example is [Backbone.localStorage](https://github.com/jeromegn/Backbone.localStorage) which, well, persists to the browser's *localStorage*.
+The beauty of it, is that one only needs to override `sync` to provide an alternative storage. A popular example is [Backbone.localStorage](https://github.com/jeromegn/Backbone.localStorage) which, persists to the browser's *localStorage*.
 
-At Riot AS we have been building a team collaboration web application centered around XMPP. I will post soon in detail about the architecture on which the app is based, but in short we have *completely* replaced Ajax requests in favor of doing all client-server as well as client-client communications through XMPP. As a result, we have been needing a storage adapter to XMPP, and [Backbone.xmpp](https://github.com/ggozad/Backbone.xmpp) was born.
+I have been part of building a team collaboration web application centered around XMPP at Riot AS. I will post details about the architecture on which the app is based, but in short we have *completely* replaced Ajax requests in favor of doing all client-server as well as client-client communications through XMPP. To do so, the need arose of a storage adapter to XMPP, and [Backbone.xmpp](https://github.com/ggozad/Backbone.xmpp) was born.
 
-**Backbone.xmpp** is a drop-in replacement for Backbone's RESTful API, allowing models/collections to be persisted on XMPP PubSub nodes. Naturally, *Collections* are mapped to *Nodes*, whereas *Models* to *Items* on these nodes. This is as easy as overriding its `sync()` function and providing an instance of `PubSubNodeStorage` on the `node` attribute of the collection. For example, if we had a collection of type `Library` consisting of models of type `Book` the collection would be
+**Backbone.xmpp** is a drop-in replacement for Backbone's RESTful API, allowing models/collections to be persisted on [XMPP Pub-Sub nodes](http://xmpp.org/extensions/xep-0060.html). Naturally, Collections are mapped to *nodes*, whereas Models to the *items* of these nodes. Additionally, it listens for events on these nodes, receiving and propagating real-time updates of the models/collections from the server. Apart from Backbone, it depends on [Strophe](http://github.com/metajack/strophejs) as well as my [Strophe plugins](http://github.com/ggozad/strophe.plugins) for Pub-Sub.
+
+For example, if you had a collection of type `BookCase` consisting of models of type `Book`, you could write:
+
+
 {% codeblock lang:javascript %}
-var MyCollection = Backbone.Collection.extend({
-    sync: Backbone.xmppSync,
-    model: MyModel,
+
+var Book = PubSubItem.extend({
+});
+
+var Library = PubSubNode.extend({
+    model: Book
+});
+
+var home = new BookCase([], {id: '/home/bookcase', connection: xmpp_connection});
+home.fetch();
+home.add({title: 'Developing Backbone.js Applications', author: 'Addy Osmani'});
+home.save();
+{% endcodeblock %}
+
+which would
+
+ * create a `BookCase` instance by passing its `id` and the Strophe `connection` in the options,
+ * fetch it from the server,
+ * add a book to the collection,
+ * and persist to Pub-Sub.
+
+ In your views you could be doing
+
+{% codeblock lang:javascript %}
+
+var BookCaseView = Backbone.View.extend({
+
     initialize: function () {
-        this.node = new PubSubNodeStorage('mymodels'),
+        this.on('add', this.addBook, this);
     },
-    ...
+
+    addBook: function (book) {
+        var bview = new BookView({model: book});
+        this.$el.append(bview.render().$el);
+    },
+    ....
 });
 {% endcodeblock %}
 
+Now, if somebody else added a book to the bookcase, you would promptly receive a notification, the `add` event would be fired on your bookcase and the book's view would appear to your browser.
