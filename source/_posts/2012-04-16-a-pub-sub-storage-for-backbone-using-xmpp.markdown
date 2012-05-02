@@ -8,11 +8,9 @@ categories: [Javascript, XMPP, backbone.js]
 
 [Backbone.js](http://documentcloud.github.com/backbone/) is a popular framework for building web applications with javascript. Building on top of the excellent [Underscore.js](http://documentcloud.github.com/underscore), it provides the basic app-building blocks, *Models*, *Collections* and *Views* as well as a simple *Router*.
 
-What I enjoy the most about Backbone, is its simplicity. It gives me what I need to be productive, no more no less. Its assumptions are limited to the essential ones leaving me the freedom to be creative and to not have to fight with it when I want to differ in my approach.
+In order to connect models and collections with the server-side of things, Backbone's default approach is CRUD through RESTful Ajax requests. All the operations that read from or persist data to the server are delegated to a `sync()` function that translates *create*, *read*, *update*, *delete* to *PUT*, *GET*, *POST*, *DELETE* through jQuery.
 
-In order to connect models and collections with the server-side of things, Backbone's default approach is CRUD through RESTful Ajax requests. All the operations that read from or persist data to the server are delegated to a *sync()* function that translates *create*, *read*, *update*, *delete* to *PUT*, *GET*, *POST*, *DELETE* through jQuery.
-
-The beauty of it, is that one only needs to override `sync` to provide an alternative storage. A popular example is [Backbone.localStorage](https://github.com/jeromegn/Backbone.localStorage) which, persists to the browser's *localStorage*.
+What I enjoy the most about Backbone, is its simplicity, how it gives me what I need to be productive, no more no less. In the case of the storage layer, one only needs to override `sync` in order to use an alternative. A popular example is [Backbone.localStorage](https://github.com/jeromegn/Backbone.localStorage) which, persists to the browser's *localStorage*.
 
 I have been part of building a team collaboration web application centered around XMPP at Riot AS. I will post details about the architecture on which the app is based, but in short we have *completely* replaced Ajax requests in favor of doing all client-server as well as client-client communications through XMPP. To do so, the need arose of a storage adapter to XMPP, and [Backbone.xmpp](https://github.com/ggozad/Backbone.xmpp) was born.
 
@@ -20,9 +18,7 @@ I have been part of building a team collaboration web application centered aroun
 
 For example, if you had a collection of type `BookCase` consisting of models of type `Book`, you could write:
 
-
 {% codeblock lang:javascript %}
-
 var Book = PubSubItem.extend({
 });
 
