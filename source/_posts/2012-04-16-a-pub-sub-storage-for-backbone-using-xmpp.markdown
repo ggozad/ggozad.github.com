@@ -3,7 +3,7 @@ layout: post
 title: "A Pub-Sub storage for Backbone using XMPP"
 date: 2012-04-16 16:54
 comments: true
-categories:
+categories: [Javascript, XMPP, backbone.js]
 ---
 
 [Backbone.js](http://documentcloud.github.com/backbone/) is a popular framework for building web applications with javascript. Building on top of the excellent [Underscore.js](http://documentcloud.github.com/underscore), it provides the basic app-building blocks, *Models*, *Collections* and *Views* as well as a simple *Router*.
@@ -62,3 +62,7 @@ var BookCaseView = Backbone.View.extend({
 {% endcodeblock %}
 
 Now, if somebody else added a book to the bookcase, you would promptly receive a notification, the `add` event would be fired on your bookcase and the book's view would appear to your browser.
+
+Finally, here's a quick demo of the [Todo.app](http://documentcloud.github.com/backbone/examples/todos/index.html) adapted to he XMPP storage. You can see the full code [here](http://github.com/ggozad/Backbone.xmpptodos).
+
+{% vimeo 40685900 %}
