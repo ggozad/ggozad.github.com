@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "A Pub-Sub storage for Backbone using XMPP"
-date: 2012-04-16 16:54
+date: 2012-05-03 16:54
 comments: true
 categories: [Javascript, XMPP, backbone.js]
 ---
