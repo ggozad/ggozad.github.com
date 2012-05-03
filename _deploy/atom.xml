@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[ggozad]]></title>
+  <link href="http://ggozad.com/atom.xml" rel="self"/>
+  <link href="http://ggozad.com/"/>
+  <updated>2012-05-03T11:38:26+02:00</updated>
+  <id>http://ggozad.com/</id>
+  <author>
+    <name><![CDATA[Yiorgis Gozadinos]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[A Pub-Sub storage for Backbone using XMPP]]></title>
+    <link href="http://ggozad.com/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp/"/>
+    <updated>2012-05-03T16:54:00+02:00</updated>
+    <id>http://ggozad.com/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp</id>
+    <content type="html"><![CDATA[<p><a href="http://documentcloud.github.com/backbone/">Backbone.js</a> is a popular framework for building web applications with javascript. Building on top of the excellent <a href="http://documentcloud.github.com/underscore">Underscore.js</a>, it provides the basic app-building blocks, <em>Models</em>, <em>Collections</em> and <em>Views</em> as well as a simple <em>Router</em>.</p>
+
+<p>In order to connect models and collections with the server-side of things, Backbone&#8217;s default approach is CRUD through RESTful Ajax requests. All the operations that read from or persist data to the server are delegated to a <code>sync()</code> function that translates <em>create</em>, <em>read</em>, <em>update</em>, <em>delete</em> to <em>PUT</em>, <em>GET</em>, <em>POST</em>, <em>DELETE</em> through jQuery.</p>
+
+<p>What I enjoy the most about Backbone is its simplicity, how it gives me what I need to be productive, no more no less. In the case of the storage layer, one only needs to override <code>sync</code> in order to use an alternative. A popular example is <a href="https://github.com/jeromegn/Backbone.localStorage">Backbone.localStorage</a> which, persists to the browser&#8217;s <em>localStorage</em>.</p>
+
+<p>I have been part of building a team collaboration web application centered around XMPP at Riot AS. I will post details about the architecture on which the app is based, but in short we have <em>completely</em> replaced Ajax requests in favor of doing all client-server as well as client-client communications through XMPP. To do so, the need arose of a storage adapter to XMPP, and <a href="http://ggozad.github.com/Backbone.xmpp">Backbone.xmpp</a> was born.</p>
+
+<p><strong>Backbone.xmpp</strong> (<a href="http://ggozad.github.com/Backbone.xmpp">GitHub</a>)is a drop-in replacement for Backbone&#8217;s RESTful API, allowing models/collections to be persisted on <a href="http://xmpp.org/extensions/xep-0060.html">XMPP Pub-Sub nodes</a>. Naturally, Collections are mapped to <em>nodes</em>, whereas Models to the <em>items</em> of these nodes. Additionally, it listens for events on these nodes, receiving and propagating real-time updates of the models/collections from the server. Apart from Backbone, it depends on <a href="http://github.com/metajack/strophejs">Strophe</a> as well as my <a href="http://ggozad.github.com/strophe.plugins">Strophe plugins</a> for Pub-Sub.</p>
+
+<p>For example, if you had a collection of type <code>BookCase</code> consisting of models of type <code>Book</code>, you could write:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Book</span> <span class="o">=</span> <span class="nx">PubSubItem</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Library</span> <span class="o">=</span> <span class="nx">PubSubNode</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">model</span><span class="o">:</span> <span class="nx">Book</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">home</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BookCase</span><span class="p">([],</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="s1">&#39;/home/bookcase&#39;</span><span class="p">,</span> <span class="nx">connection</span><span class="o">:</span> <span class="nx">xmpp_connection</span><span class="p">});</span>
+</span><span class='line'><span class="nx">home</span><span class="p">.</span><span class="nx">fetch</span><span class="p">();</span>
+</span><span class='line'><span class="nx">home</span><span class="p">.</span><span class="nx">add</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Developing Backbone.js Applications&#39;</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s1">&#39;Addy Osmani&#39;</span><span class="p">});</span>
+</span><span class='line'><span class="nx">home</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which would</p>
+
+<ul>
+<li>create a <code>BookCase</code> instance by passing its <code>id</code> and the Strophe <code>connection</code> in the options,</li>
+<li>fetch it from the server,</li>
+<li>add a book to the collection,</li>
+<li>and persist to Pub-Sub.</li>
+</ul>
+
+
+<p> In your views you could be doing</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">BookCaseView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">addBook</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">addBook</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">book</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">bview</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BookView</span><span class="p">({</span><span class="nx">model</span><span class="o">:</span> <span class="nx">book</span><span class="p">});</span>
+</span><span class='line'>        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">bview</span><span class="p">.</span><span class="nx">render</span><span class="p">().</span><span class="nx">$el</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">....</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, if somebody else added a book to the bookcase, you would promptly receive a notification, the <code>add</code> event would be fired on your bookcase and the book&#8217;s view would appear to your browser.</p>
+
+<p>To visualize how this works, here&#8217;s a quick demo of the <a href="http://documentcloud.github.com/backbone/examples/todos/index.html">Todo.app</a> adapted to he XMPP storage. You can see the full code <a href="http://github.com/ggozad/Backbone.xmpptodos">here</a>.</p>
+
+<iframe width="400" height="225" src="http://player.vimeo.com/video/40685900 " frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+
+<p>Finally, if you do not want to receive push notifications on your models/collections or wish to craft your own events, you do not have to extend from <code>PubSubNode</code>, <code>PubSubItem</code>. In your own code, override <code>sync</code> in both the model and the collection and provide an instance of <code>PubSubStorage</code> as <code>node</code>on your collection. For instance:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyCollection</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">sync</span><span class="o">:</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">xmppSync</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">model</span><span class="o">:</span> <span class="nx">MyModel</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">mycollection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MyCollection</span><span class="p">();</span>
+</span><span class='line'><span class="nx">mycollection</span><span class="p">.</span><span class="nx">node</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PubSubStorage</span><span class="p">(</span><span class="s1">&#39;mymodels&#39;</span><span class="p">,</span> <span class="nx">connection</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyModel</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">sync</span><span class="o">:</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">xmppSync</span><span class="p">,</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">mymodel</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MyModel</span><span class="p">();</span>
+</span><span class='line'><span class="nx">mycollection</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">mymodel</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can then subscribe to the XMPP notifications elsewhere, say for example in your collection view:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">connection</span><span class="p">.</span><span class="nx">PubSub</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span>
+</span><span class='line'>    <span class="s1">&#39;xmpp:pubsub:item-published:mymodels&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">itemPublished</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There you go. Hope you will find this useful, will be looking forward to your contributions!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Javascript: how to do it, live to tell the story and actually enjoy it]]></title>
+    <link href="http://ggozad.com/blog/2012/02/05/using-javascript-how-to-do-it/"/>
+    <updated>2012-02-05T22:40:00+01:00</updated>
+    <id>http://ggozad.com/blog/2012/02/05/using-javascript-how-to-do-it</id>
+    <content type="html"><![CDATA[<p>It is no secret that the relationship between the Plone community (and I imagine the same stands for a large part of the rest of the Python world) and Javascript is bumpy to say the least. Javascript is considered inferior, ugly, dirty, a scripting language that is an unfortunate necessity. Typically this happens due to these reasons:</p>
+
+<ul>
+<li>Javascript has been so misused that the web is ridden with bad examples and anti-patterns. Most of us have copy-pasted bad examples without questioning them or putting the extra effort to understand and find better ways. The good thing is that this is now changing, frameworks exist and they are well documented, and there is now a plethora of good developers who actually are proud and actively advertise being Javascript developers.</li>
+<li>It is actually <em>hard</em> to see the nice parts of Javascript. This is especially true if you don&#8217;t even try and it is also true that calling something a &#8220;self-invoking anonymous function&#8221; does not help. But hey, they do exist. Closures are nice. Functions and prototypes are nice. The functional parts of Javascript are nice. And a lot of the frameworks that are around nowadays have patterns that manage to be both simple and powerful.</li>
+<li>Purism. The eternal battle of the server vs. client, how curly brackets are so unecessary and how in order to adhere to accessibility everything should work primarily <em>without</em> Javascript. Oh well, I think I will pass on this one.</li>
+</ul>
+
+
+<p>In the last few months I have been working on a primarily Javascript app. It&#8217;s a non-Plone related project which I promise to expand upon in later posts but the lessons learned and experience gained apply to Javascript written for Plone as well:</p>
+
+<h2>JS is not that bad&#8230;</h2>
+
+<p>Let&#8217;s understand and explore what is there already. I will use as an example the most common pattern of calling an asyncronous function with jQuery and doing something on &#8220;success&#8221;. This is such a common operation, but did you know you can improve how you do it by using jQuery&#8217;s Deferreds and Promises?</p>
+
+<p>To the point: Imagine you want to write a function that executes something asyncronously (fetch from a DB or whatever) and needs to return the result. I will emulate the asyncronous nature of the function by using <code>setTimeout</code>. Is this what you would do?</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunc</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">success</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">success</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nx">success</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">success</span><span class="p">(</span><span class="mi">42</span> <span class="o">*</span> <span class="nx">value</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">myFunc</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="p">{</span><span class="nx">success</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">res</span><span class="p">);</span> <span class="p">}});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In version 1.5 jQuery introduced the notion of <em>deferred</em> and <em>promise</em>. Compare the above to the following code using those:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunc</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">d</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="mi">42</span> <span class="o">*</span> <span class="nx">value</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">d</span><span class="p">.</span><span class="nx">promise</span><span class="p">();</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="nx">myFunc</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="nx">promise</span><span class="p">.</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">res</span><span class="p">);</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Take some time to figure it out and think for a start if you find it cleaner&#8230;. It is, isn&#8217;t it? First we create a <code>$.Deferred</code>. At the end we return the deferred&#8217;s <code>promise</code>. Inside the asyncronous part we <em>resolve</em> the deferred, which in turn triggers the promise&#8217;s <code>done</code>. Apart from being neater there are a number of additional advantages. To name a couple that I find interesting, a promises&#8217;s <code>done</code> will trigger even after the deferred has been resolved. That is, if later you did</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">promise</span><span class="p">.</span><span class="nx">done</span><span class="p">(</span><span class="nx">do_something_else</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>this would trigger immediately since the promise has been fulfilled already. Additionally, you can easily chain deferreds and promises, or say if you wanted something to happen after a few promises have been fulfilled you could do</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">$</span><span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="nx">promise1</span><span class="p">,</span> <span class="nx">promise2</span><span class="p">).</span><span class="nx">then</span><span class="p">(...);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Of course deferreds and promises support handling failures, provide a way to inspect the state of a promise and a few other goodies. Read more about them <a href="http://api.jquery.com/category/deferred-object/">here</a> and <a href="http://api.jquery.com/promise/">here</a>. You can already start using them on all jQuery objects/functions and also be aware that the success/failure callbacks will eventually be obsolete. The point of this exercise was to show you that there is a lot you probably don&#8217;t know about Javascript. It&#8217;s there for you to explore.</p>
+
+<h2>Choose your frameworks</h2>
+
+<p>Let&#8217;s stop writing spaghetti code taken from random examples. It does not help us and others understand what we do. It is not maintainable. It is error-prone. My own stuff <a href="http://github.com/ggozad/jarn.xmpp.core">jarn.xmpp.core</a> although better than average is a good example of what to avoid. The UI and logic <em>are</em> (not loosely enough) coupled together. While the use of namespaces gives an impression of structure, the different modules are not decoupled and they really require the total to be present to function. When I get the time (or clients) to rewrite it I will.</p>
+
+<p>For this to happen it helps a lot if you have frameworks. The ones I chose, but this depends a lot on what one values, are Underscore and Backbone. I find them both indispensable tools in my daily routine.</p>
+
+<ul>
+<li><p><a href="http://documentcloud.github.com/underscore/">Underscore</a> gives you all these utilities that you have come to depend upon. Map, reduce, filter, and the likes are the core of the framework. Then there are some additional things I like, especially the function binding and the minimal and powerful template engine.</p></li>
+<li><p><a href="http://documentcloud.github.com/backbone/">Backbone</a> is my choice for structuring my code and doing MVC. Its primary use is to support you writing models, collections and views for these. Additionally it gives you a super extensible way with sane defaults to push/pull data to the server that does not get in your way.</p></li>
+</ul>
+
+
+<p>Others might choose different tools like <a href="http://emberjs.com/">Ember.js</a>. I like Underscore and Backbone because they are small, they are readable (check out the annotated source and try to remember when was the last time you read through a framework and actually <em>understood</em> what it was doing on your first read?) but mostly and this is super important they don&#8217;t get in your way. When you want to do things differently they allow you to do so without a fight. Coming from Plone, I can&#8217;t feel but relieved.</p>
+
+<h2>Testing</h2>
+
+<p>Plone has been pretty good at that since the days of 2.5. There is an enormous suite of tests to cover the framework and all respectable add-on products are accompanied by a test suite. Only problem is, these tests rarely cover the client side of things. Javascript becoming an essential part of products and frameworks alike, this should change.</p>
+
+<p>I looked at QUnit, JUnit and selenium (in all its variants and collection of Python drivers). I found them cumbersome and restrictive. Then I came across <a href="http://pivotal.github.com/jasmine/">Jasmine</a> and fell in love. Jasmine is a BBD (Behavior-Driven Development) framework with these advantages:</p>
+
+<ul>
+<li>Readable, simple and fast.</li>
+<li>Powerful mocking and spies built-in (took me 15 lines to create a mock for an XMPP connection;))</li>
+<li>No requirements on other frameworks, just works with whatever you use.</li>
+<li>It can run either on the browser or headless and there is abundance of drivers for it.</li>
+</ul>
+
+
+<p>I find that the combination of the above is hard to find together. Use it, it&#8217;s good!</p>
+
+<p>There you go. Hopefully you will get the same pleasure I got exploring all that and will find it as rewarding&#8230;</p>
+]]></content>
+  </entry>
+  
+</feed>

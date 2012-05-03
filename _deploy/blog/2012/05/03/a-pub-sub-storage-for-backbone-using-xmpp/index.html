@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Pub-Sub storage for Backbone using XMPP - ggozad</title>
+  <meta name="author" content="Yiorgis Gozadinos">
+
+  
+  <meta name="description" content="Backbone.js is a popular framework for building web applications with javascript. Building on top of the excellent Underscore.js, it provides the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ggozad.com/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="ggozad" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28961162-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <img class="right" src="/images/mugshot_thumb.jpg" width="64" height="64">
+
+  <h1><a href="/">ggozad</a></h1>
+  
+    <h2>a python, js, XMPP hacker.</h2>
+  
+</hgroup>
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ggozad.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">A Pub-Sub storage for Backbone using XMPP</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-03T16:54:00+02:00" pubdate data-updated="true">May 3<span>rd</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://documentcloud.github.com/backbone/">Backbone.js</a> is a popular framework for building web applications with javascript. Building on top of the excellent <a href="http://documentcloud.github.com/underscore">Underscore.js</a>, it provides the basic app-building blocks, <em>Models</em>, <em>Collections</em> and <em>Views</em> as well as a simple <em>Router</em>.</p>
+
+<p>In order to connect models and collections with the server-side of things, Backbone&#8217;s default approach is CRUD through RESTful Ajax requests. All the operations that read from or persist data to the server are delegated to a <code>sync()</code> function that translates <em>create</em>, <em>read</em>, <em>update</em>, <em>delete</em> to <em>PUT</em>, <em>GET</em>, <em>POST</em>, <em>DELETE</em> through jQuery.</p>
+
+<p>What I enjoy the most about Backbone is its simplicity, how it gives me what I need to be productive, no more no less. In the case of the storage layer, one only needs to override <code>sync</code> in order to use an alternative. A popular example is <a href="https://github.com/jeromegn/Backbone.localStorage">Backbone.localStorage</a> which, persists to the browser&#8217;s <em>localStorage</em>.</p>
+
+<p>I have been part of building a team collaboration web application centered around XMPP at Riot AS. I will post details about the architecture on which the app is based, but in short we have <em>completely</em> replaced Ajax requests in favor of doing all client-server as well as client-client communications through XMPP. To do so, the need arose of a storage adapter to XMPP, and <a href="http://ggozad.github.com/Backbone.xmpp">Backbone.xmpp</a> was born.</p>
+
+<p><strong>Backbone.xmpp</strong> (<a href="http://ggozad.github.com/Backbone.xmpp">GitHub</a>)is a drop-in replacement for Backbone&#8217;s RESTful API, allowing models/collections to be persisted on <a href="http://xmpp.org/extensions/xep-0060.html">XMPP Pub-Sub nodes</a>. Naturally, Collections are mapped to <em>nodes</em>, whereas Models to the <em>items</em> of these nodes. Additionally, it listens for events on these nodes, receiving and propagating real-time updates of the models/collections from the server. Apart from Backbone, it depends on <a href="http://github.com/metajack/strophejs">Strophe</a> as well as my <a href="http://ggozad.github.com/strophe.plugins">Strophe plugins</a> for Pub-Sub.</p>
+
+<p>For example, if you had a collection of type <code>BookCase</code> consisting of models of type <code>Book</code>, you could write:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Book</span> <span class="o">=</span> <span class="nx">PubSubItem</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Library</span> <span class="o">=</span> <span class="nx">PubSubNode</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">model</span><span class="o">:</span> <span class="nx">Book</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">home</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BookCase</span><span class="p">([],</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="s1">&#39;/home/bookcase&#39;</span><span class="p">,</span> <span class="nx">connection</span><span class="o">:</span> <span class="nx">xmpp_connection</span><span class="p">});</span>
+</span><span class='line'><span class="nx">home</span><span class="p">.</span><span class="nx">fetch</span><span class="p">();</span>
+</span><span class='line'><span class="nx">home</span><span class="p">.</span><span class="nx">add</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Developing Backbone.js Applications&#39;</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s1">&#39;Addy Osmani&#39;</span><span class="p">});</span>
+</span><span class='line'><span class="nx">home</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which would</p>
+
+<ul>
+<li>create a <code>BookCase</code> instance by passing its <code>id</code> and the Strophe <code>connection</code> in the options,</li>
+<li>fetch it from the server,</li>
+<li>add a book to the collection,</li>
+<li>and persist to Pub-Sub.</li>
+</ul>
+
+
+<p> In your views you could be doing</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">BookCaseView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">addBook</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">addBook</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">book</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">bview</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BookView</span><span class="p">({</span><span class="nx">model</span><span class="o">:</span> <span class="nx">book</span><span class="p">});</span>
+</span><span class='line'>        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">bview</span><span class="p">.</span><span class="nx">render</span><span class="p">().</span><span class="nx">$el</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">....</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, if somebody else added a book to the bookcase, you would promptly receive a notification, the <code>add</code> event would be fired on your bookcase and the book&#8217;s view would appear to your browser.</p>
+
+<p>To visualize how this works, here&#8217;s a quick demo of the <a href="http://documentcloud.github.com/backbone/examples/todos/index.html">Todo.app</a> adapted to he XMPP storage. You can see the full code <a href="http://github.com/ggozad/Backbone.xmpptodos">here</a>.</p>
+
+<iframe width="400" height="225" src="http://player.vimeo.com/video/40685900 " frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+
+<p>Finally, if you do not want to receive push notifications on your models/collections or wish to craft your own events, you do not have to extend from <code>PubSubNode</code>, <code>PubSubItem</code>. In your own code, override <code>sync</code> in both the model and the collection and provide an instance of <code>PubSubStorage</code> as <code>node</code>on your collection. For instance:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyCollection</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">sync</span><span class="o">:</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">xmppSync</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">model</span><span class="o">:</span> <span class="nx">MyModel</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">mycollection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MyCollection</span><span class="p">();</span>
+</span><span class='line'><span class="nx">mycollection</span><span class="p">.</span><span class="nx">node</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PubSubStorage</span><span class="p">(</span><span class="s1">&#39;mymodels&#39;</span><span class="p">,</span> <span class="nx">connection</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyModel</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">sync</span><span class="o">:</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">xmppSync</span><span class="p">,</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">mymodel</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MyModel</span><span class="p">();</span>
+</span><span class='line'><span class="nx">mycollection</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">mymodel</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can then subscribe to the XMPP notifications elsewhere, say for example in your collection view:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">connection</span><span class="p">.</span><span class="nx">PubSub</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span>
+</span><span class='line'>    <span class="s1">&#39;xmpp:pubsub:item-published:mymodels&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">itemPublished</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There you go. Hope you will find this useful, will be looking forward to your contributions!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Yiorgis Gozadinos</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-03T16:54:00+02:00" pubdate data-updated="true">May 3<span>rd</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/xmpp/'>XMPP</a>, <a class='category' href='/blog/categories/backbone-js/'>backbone.js</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ggozad.com/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp/" data-via="ggozad" data-counturl="http://ggozad.com/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/02/05/using-javascript-how-to-do-it/" title="Previous Post: Using Javascript: how to do it, live to tell the story and actually enjoy it">&laquo; Using Javascript: how to do it, live to tell the story and actually enjoy it</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp/">A Pub-Sub storage for Backbone using XMPP</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/05/using-javascript-how-to-do-it/">Using Javascript: how to do it, live to tell the story and actually enjoy it</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/ggozad">@ggozad</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'ggozad',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("ggozad", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/ggozad" class="twitter-follow-button" data-show-count="false">Follow @ggozad</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Yiorgis Gozadinos -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'ggozad';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://ggozad.com/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp/';
+        var disqus_url = 'http://ggozad.com/blog/2012/05/03/a-pub-sub-storage-for-backbone-using-xmpp/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
