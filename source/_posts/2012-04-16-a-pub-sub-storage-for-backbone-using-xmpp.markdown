@@ -59,6 +59,41 @@ var BookCaseView = Backbone.View.extend({
 
 Now, if somebody else added a book to the bookcase, you would promptly receive a notification, the `add` event would be fired on your bookcase and the book's view would appear to your browser.
 
-Finally, here's a quick demo of the [Todo.app](http://documentcloud.github.com/backbone/examples/todos/index.html) adapted to he XMPP storage. You can see the full code [here](http://github.com/ggozad/Backbone.xmpptodos).
+To visualize how this works, here's a quick demo of the [Todo.app](http://documentcloud.github.com/backbone/examples/todos/index.html) adapted to he XMPP storage. You can see the full code [here](http://github.com/ggozad/Backbone.xmpptodos).
 
 {% vimeo 40685900 %}
+
+Finally, if you do not want to receive push notifications on your models/collections or wish to craft your own events, you do not have to extend from `PubSubNode`, `PubSubItem`. In your own code, override `sync` in both the model and the collection and provide an instance of `PubSubStorage` as `node`on your collection. For instance:
+
+{% codeblock lang:javascript %}
+var MyCollection = Backbone.Collection.extend({
+    sync: Backbone.xmppSync,
+    model: MyModel,
+    ...
+});
+
+var mycollection = new MyCollection();
+mycollection.node = new PubSubStorage('mymodels', connection);
+{% endcodeblock %}
+
+and
+
+{% codeblock lang:javascript %}
+var MyModel = Backbone.Model.extend({
+        sync: Backbone.xmppSync,
+        ...
+    });
+
+var mymodel = new MyModel();
+mycollection.add(mymodel);
+{% endcodeblock %}
+
+You can then subscribe to the XMPP notifications elsewhere, say for example in your collection view:
+
+{% codeblock lang:javascript %}
+connection.PubSub.on(
+    'xmpp:pubsub:item-published:mymodels',
+    this.itemPublished, this);
+{% endcodeblock %}
+
+There you go. Hope you will find this useful, will be looking forward to your contributions!
