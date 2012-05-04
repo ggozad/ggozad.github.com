@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Javascript | ggozad]]></title>
   <link href="http://ggozad.com/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://ggozad.com/"/>
-  <updated>2012-05-03T11:43:38+02:00</updated>
+  <updated>2012-05-04T15:53:08+02:00</updated>
   <id>http://ggozad.com/</id>
   <author>
     <name><![CDATA[Yiorgis Gozadinos]]></name>
@@ -47,7 +47,7 @@
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Book</span> <span class="o">=</span> <span class="nx">PubSubItem</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
 </span><span class='line'><span class="p">});</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
 </span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="kd">var</span> <span class="nx">Library</span> <span class="o">=</span> <span class="nx">PubSubNode</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="kd">var</span> <span class="nx">BookCase</span> <span class="o">=</span> <span class="nx">PubSubNode</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">model</span><span class="o">:</span> <span class="nx">Book</span>
 </span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
