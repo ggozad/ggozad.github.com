@@ -22,7 +22,7 @@ For example, if you had a collection of type `BookCase` consisting of models of 
 var Book = PubSubItem.extend({
 });
 
-var Library = PubSubNode.extend({
+var BookCase = PubSubNode.extend({
     model: Book
 });
 
